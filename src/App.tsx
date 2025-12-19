@@ -2,11 +2,13 @@ import { ComponentType, useEffect, useState } from 'react';
 import Home from './pages/Home';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import DataDeletion from './pages/DataDeletion';
 
 const routes: Record<string, ComponentType> = {
   '/': Home,
   '/privacy': Privacy,
   '/terms': Terms,
+  '/data-deletion': DataDeletion,
 };
 
 const App = () => {

@@ -17,8 +17,11 @@ const Privacy = () => {
             Creatyv only collects information needed to deliver the platform&apos;s functionality:
           </p>
           <ul className="list-disc pl-6 text-white/80 space-y-2">
-            <li>Messages and attachments received through WhatsApp, Facebook Messenger, Instagram Direct, and web chat.</li>
-            <li>Contact information such as names, phone numbers, and social media profile identifiers.</li>
+            <li>
+              Messages, attachments, and metadata originating from WhatsApp, Facebook Messenger, Instagram Direct, and
+              website chat widgets connected to Creatyv.
+            </li>
+            <li>Contact information such as names, phone numbers, social media profile identifiers, and email addresses.</li>
             <li>Appointment dates, times, and confirmation history when scheduling is enabled.</li>
           </ul>
         </div>
@@ -40,6 +43,15 @@ const Privacy = () => {
         </div>
 
         <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">Meta Platform Processing</h2>
+          <p className="text-white/80">
+            Creatyv processes conversations and user data received from WhatsApp, Facebook Messenger, Instagram Direct,
+            and website chat on behalf of the business. These channels are provided by Meta platforms, and Creatyv uses
+            only official Meta-approved APIs to receive, store, and route the messages so that staff can reply securely.
+          </p>
+        </div>
+
+        <div className="space-y-4">
           <h2 className="text-2xl font-semibold">Platform Compliance</h2>
           <p className="text-white/80">
             Creatyv follows WhatsApp, Meta, and each supported messaging platform&apos;s terms and policies. Integrations
@@ -49,20 +61,33 @@ const Privacy = () => {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Data Handling</h2>
+          <h2 className="text-2xl font-semibold">Data Handling and Retention</h2>
           <p className="text-white/80">
-            Access is limited to authorized Creatyv staff who maintain the platform and fulfill support requests. Data
-            is retained only for the time required to operate the service or as requested by the business and can be
-            deleted upon written instruction.
+            Access to personal data is limited to authorized Creatyv staff who maintain the platform and fulfill support
+            requests. Data is transmitted using encrypted channels, stored in secured infrastructure, and retained only
+            for the time required to operate the service or comply with business instructions. Upon verified request,
+            Creatyv deletes conversations, attachments, contact profiles, and appointment history associated with the
+            requesting account.
           </p>
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Contact</h2>
+          <h2 className="text-2xl font-semibold">Contact Information</h2>
           <p className="text-white/80">
-            Questions about this Privacy Policy can be sent to{' '}
+            If you have questions about this Privacy Policy or how data is handled, you may contact us at{' '}
             <a href="mailto:contact@creatyv.io" className="text-white underline">
               contact@creatyv.io
+            </a>
+            .
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">User Data Deletion</h2>
+          <p className="text-white/80">
+            Users may request deletion of their data by following the instructions available at{' '}
+            <a href="https://creatyv.io/data-deletion" className="text-white underline">
+              https://creatyv.io/data-deletion
             </a>
             .
           </p>
