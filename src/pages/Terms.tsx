@@ -57,6 +57,13 @@ const Terms = () => {
             .
           </p>
         </div>
+
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">Legal Disclosure</h2>
+          <p className="text-white/80">Legal Entity: José Antonio Duran Herrera</p>
+          <p className="text-white/80">Business Type: Sole Proprietor</p>
+          <p className="text-white/80">Brand Name: Creatyv.io</p>
+        </div>
       </section>
     </main>
   );
