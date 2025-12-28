@@ -3,10 +3,10 @@ import { useLanguage } from '../context/LanguageContext';
 import { useNavigation } from '../context/NavigationContext';
 import LandingPage from '../components/LandingPage';
 
-const Home = () => {
+const Builders = () => {
   const { language } = useLanguage();
   const { scrollToSection } = useNavigation();
-  const content = copy[language].landings.general;
+  const content = copy[language].landings.builders;
 
   return (
     <LandingPage
@@ -17,4 +17,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Builders;

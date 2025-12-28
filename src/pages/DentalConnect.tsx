@@ -1,25 +1,19 @@
-import React from 'react';
-import Hero from '../components/Hero';
-import Features from '../components/Features';
-import HowItWorks from '../components/HowItWorks';
-import Pricing from '../components/Pricing';
-import Testimonials from '../components/Testimonials';
-import FAQ from '../components/FAQ';
-import CTA from '../components/CTA';
-import Footer from '../components/Footer';
+import { copy } from '../content/copy';
+import { useLanguage } from '../context/LanguageContext';
+import { useNavigation } from '../context/NavigationContext';
+import LandingPage from '../components/LandingPage';
 
 const DentalConnect = () => {
+  const { language } = useLanguage();
+  const { scrollToSection } = useNavigation();
+  const content = copy[language].landings.dental;
+
   return (
-    <div className="min-h-screen bg-[#0f0f0f]">
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <Pricing />
-      <Testimonials />
-      <FAQ />
-      <CTA />
-      <Footer />
-    </div>
+    <LandingPage
+      content={content}
+      onPrimaryAction={() => scrollToSection('contact')}
+      onSecondaryAction={() => scrollToSection('how')}
+    />
   );
 };
 
