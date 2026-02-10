@@ -56,7 +56,16 @@ export default function Trial() {
     // Cambia el nombre de la tabla aquí si quieres.
     const table = 'trial_leads';
 
-    const { error: insertErr } = await supabase.from(table).insert(payload);
+    const { error: insertErr } = import { supabase, hasSupabaseEnv } from '../lib/supabaseClient';
+
+...
+
+if (!hasSupabaseEnv || !supabase) {
+  // fallback: no guardar, solo redirigir al dashboard con querystring
+  window.location.href = `${dashboardUrl}/trial?${qs.toString()}`;
+  return;
+}
+;
 
     if (insertErr) {
       // Si la tabla no existe, intenta con "leads" como fallback
