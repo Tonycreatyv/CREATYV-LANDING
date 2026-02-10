@@ -1,7 +1,7 @@
 import { ComponentType, useEffect, useMemo, useState } from 'react';
 import Home from './pages/Home';
 import DentalConnect from './pages/DentalConnect';
-import Builders from './pages/Builders';
+import Trial from './pages/Trial';
 import Legal from './pages/Legal';
 import Footer from './components/Footer';
 import { copy } from './content/copy';
@@ -11,7 +11,7 @@ import { NavigationProvider } from './context/NavigationContext';
 const routes: Record<string, ComponentType> = {
   '/': Home,
   '/dental': DentalConnect,
-  '/builders': Builders,
+  '/trial': Trial,
   '/legal': Legal,
   '/privacy': Legal,
   '/terms': Legal,
@@ -23,7 +23,9 @@ const App = () => {
   const [hash, setHash] = useState(window.location.hash);
   const { language, setLanguage } = useLanguage();
   const labels = copy[language].navigation;
-  const landingPaths = useMemo(() => new Set(['/', '/dental', '/builders']), []);
+
+  // solo páginas “landing” donde se puede hacer scrollToSection sin redirigir
+  const landingPaths = useMemo(() => new Set(['/', '/dental']), []);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -31,8 +33,10 @@ const App = () => {
       setHash(window.location.hash);
     };
     const handleHashChange = () => setHash(window.location.hash);
+
     window.addEventListener('popstate', handlePopState);
     window.addEventListener('hashchange', handleHashChange);
+
     return () => {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('hashchange', handleHashChange);
@@ -42,6 +46,7 @@ const App = () => {
   const goTo = (to: string, nextHash?: string, options?: { replace?: boolean }) => {
     const target = nextHash ? `${to}#${nextHash}` : to;
     const current = `${window.location.pathname}${window.location.hash}`;
+
     if (current !== target) {
       if (options?.replace) {
         window.history.replaceState({}, '', target);
@@ -51,6 +56,7 @@ const App = () => {
       setPath(window.location.pathname);
       setHash(window.location.hash);
     }
+
     if (!nextHash) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -80,9 +86,7 @@ const App = () => {
   }, [path]);
 
   useEffect(() => {
-    if (!hash) {
-      return;
-    }
+    if (!hash) return;
     const id = hash.replace('#', '');
     const element = document.getElementById(id);
     if (element) {
@@ -104,16 +108,16 @@ const App = () => {
             >
               Creatyv
             </button>
+
             <nav className="flex flex-wrap items-center gap-4 text-xs tracking-[0.3em] uppercase text-white/80">
               <button type="button" onClick={() => goTo('/')} className="hover:text-white">
                 {labels.home}
               </button>
+
               <button type="button" onClick={() => goTo('/dental')} className="hover:text-white">
                 {labels.dental}
               </button>
-              <button type="button" onClick={() => goTo('/builders')} className="hover:text-white">
-                {labels.builders}
-              </button>
+
               <button type="button" onClick={() => scrollToSection('what')} className="hover:text-white">
                 {labels.what}
               </button>
@@ -126,7 +130,12 @@ const App = () => {
               <button type="button" onClick={() => scrollToSection('contact')} className="hover:text-white">
                 {labels.contact}
               </button>
+
+              <button type="button" onClick={() => goTo('/trial')} className="hover:text-white">
+                Gratis 7 días
+              </button>
             </nav>
+
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/70">
               <button
                 type="button"
@@ -146,6 +155,7 @@ const App = () => {
             </div>
           </div>
         </header>
+
         <CurrentPage />
         <Footer />
       </div>

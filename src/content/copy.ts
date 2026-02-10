@@ -109,8 +109,10 @@ export const copy: Record<Language, CopyPack> = {
           headline: 'Automatiza conversaciones y solicitudes sin perder clientes.',
           subhead:
             'Creatyv centraliza mensajes, agenda solicitudes y mantiene a tu equipo enfocado en ventas y servicio con automatizaciones claras.',
-          primaryCta: 'Solicitar demo',
-          secondaryCta: 'Ver como funciona',
+          // ✅ CAMBIO: CTA principal
+          primaryCta: 'GRATIS 7 DÍAS',
+          // ✅ CAMBIO: acento + texto
+          secondaryCta: 'Ver cómo funciona',
         },
         featuresTitle: 'Lo que entrega Creatyv',
         features: [
@@ -436,6 +438,7 @@ export const copy: Record<Language, CopyPack> = {
       },
     },
   },
+
   en: {
     navigation: {
       home: 'Home',
@@ -458,8 +461,10 @@ export const copy: Record<Language, CopyPack> = {
           headline: 'Automate conversations and appointment requests without losing clients.',
           subhead:
             'Creatyv centralizes messages, coordinates requests, and keeps teams focused on sales and service with clear automations.',
-          primaryCta: 'Request a Demo',
-          secondaryCta: 'See How It Works',
+          // ✅ CAMBIO: CTA principal
+          primaryCta: 'FREE 7 DAYS',
+          // ✅ CAMBIO: texto
+          secondaryCta: 'See how it works',
         },
         featuresTitle: 'What Creatyv Delivers',
         features: [
