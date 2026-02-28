@@ -3,18 +3,18 @@ import { useLanguage } from '../context/LanguageContext';
 import { useNavigation } from '../context/NavigationContext';
 import LandingPage from '../components/LandingPage';
 
-const Builders = () => {
+const Autolotes = () => {
   const { language } = useLanguage();
-  const { scrollToSection } = useNavigation();
-  const content = copy[language].landings.builders;
+  const { scrollToSection, goTo } = useNavigation();
+  const content = copy[language].landings.autos;
 
   return (
     <LandingPage
       content={content}
-      onPrimaryAction={() => scrollToSection('contact')}
+      onPrimaryAction={() => goTo('/demo?industry=autos')}
       onSecondaryAction={() => scrollToSection('how')}
     />
   );
 };
 
-export default Builders;
+export default Autolotes;
