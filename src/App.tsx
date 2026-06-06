@@ -1,7 +1,7 @@
 import { ComponentType, LazyExoticComponent, Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import Home from './pages/Home';
 import DentalConnect from './pages/DentalConnect';
-import BarberLine from './pages/BarberLine';
+import BarberLanding from './barber/BarberLanding';
 import Trial from './pages/Trial';
 import Legal from './pages/Legal';
 import ClinicPortal from './pages/ClinicPortal';
