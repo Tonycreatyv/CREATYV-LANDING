@@ -1,17 +1,28 @@
-import { ComponentType, useEffect, useMemo, useState } from 'react';
+import { ComponentType, LazyExoticComponent, Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import Home from './pages/Home';
 import DentalConnect from './pages/DentalConnect';
+import BarberLine from './pages/BarberLine';
 import Trial from './pages/Trial';
 import Legal from './pages/Legal';
+import ClinicPortal from './pages/ClinicPortal';
+import SalesRuntime from './pages/SalesRuntime';
 import Footer from './components/Footer';
 import { useLanguage } from './context/LanguageContext';
 import { NavigationProvider } from './context/NavigationContext';
 import LeadIntakeWidget from './components/LeadIntakeWidget';
 
-const routes: Record<string, ComponentType> = {
+const BarberLanding = lazy(() => import('./barber/BarberLanding'));
+
+type RouteComponent = ComponentType | LazyExoticComponent<ComponentType>;
+
+const routes: Record<string, RouteComponent> = {
   '/': Home,
   '/dental': DentalConnect,
+  '/barber': BarberLanding,
+  '/barberline': BarberLine,
   '/trial': Trial,
+  '/app': ClinicPortal,
+  '/sales-runtime': SalesRuntime,
   '/legal': Legal,
   '/privacy': Legal,
   '/terms': Legal,
@@ -23,6 +34,8 @@ const App = () => {
   const [hash, setHash] = useState(window.location.hash);
   const { language, setLanguage } = useLanguage();
   const isDentalPage = path === '/dental';
+  const isBarberPage = path === '/barber';
+  const showSalesWidget = !['/app', '/sales-runtime', '/barber'].includes(path);
 
   const navI18n = {
     es: {
@@ -49,7 +62,7 @@ const App = () => {
   const labels = navI18n[language];
 
   // solo páginas “landing” donde se puede hacer scrollToSection sin redirigir
-  const landingPaths = useMemo(() => new Set(['/', '/dental']), []);
+  const landingPaths = useMemo(() => new Set(['/', '/dental', '/barberline']), []);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -119,85 +132,94 @@ const App = () => {
   }, [hash, path]);
 
   const CurrentPage = routes[path] ?? Home;
+  const page = (
+    <Suspense fallback={null}>
+      <CurrentPage />
+    </Suspense>
+  );
 
   return (
     <NavigationProvider value={{ goTo, scrollToSection }}>
-      <div className="min-h-screen bg-[#0f0f0f] text-white">
-        <header className="px-6 py-4 border-b border-white/10 sticky top-0 bg-[#0f0f0f]/95 backdrop-blur z-10">
-          <div className="max-w-6xl mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <button
-              type="button"
-              onClick={() => goTo('/')}
-              className="text-lg font-semibold tracking-[0.3em] uppercase text-white"
-            >
-              Creatyv
-            </button>
-
-            <nav className="flex flex-wrap items-center gap-4 text-xs tracking-[0.3em] uppercase text-white/80">
-              <button type="button" onClick={() => goTo('/')} className="hover:text-white">
-                {labels.home}
+      {isBarberPage ? (
+        page
+      ) : (
+        <div className="min-h-screen bg-[#0f0f0f] text-white">
+          <header className="px-6 py-4 border-b border-white/10 sticky top-0 bg-[#0f0f0f]/95 backdrop-blur z-10">
+            <div className="max-w-6xl mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <button
+                type="button"
+                onClick={() => goTo('/')}
+                className="text-lg font-semibold tracking-[0.3em] uppercase text-white"
+              >
+                Creatyv
               </button>
 
-              <button type="button" onClick={() => goTo('/dental')} className="hover:text-white">
-                {labels.dental}
-              </button>
-
-              {isDentalPage ? (
-                <>
-                  <button type="button" onClick={() => scrollToSection('what')} className="hover:text-white">
-                    {labels.what}
-                  </button>
-                  <button type="button" onClick={() => scrollToSection('pricing')} className="hover:text-white">
-                    {labels.pricing}
-                  </button>
-                  <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">
-                    {labels.faq}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button type="button" onClick={() => scrollToSection('solutions')} className="hover:text-white">
-                    {labels.solutions}
-                  </button>
-                  <button type="button" onClick={() => scrollToSection('apps')} className="hover:text-white">
-                    {labels.apps}
-                  </button>
-                  <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">
-                    {labels.faq}
-                  </button>
-                </>
-              )}
-              <button type="button" onClick={() => scrollToSection('contact')} className="hover:text-white">
-                {labels.contact}
-              </button>
-            </nav>
-
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/70">
-                <button
-                  type="button"
-                  onClick={() => setLanguage('es')}
-                  className={language === 'es' ? 'text-white' : 'text-white/40 hover:text-white/70'}
-                >
-                  ES
+              <nav className="flex flex-wrap items-center gap-4 text-xs tracking-[0.3em] uppercase text-white/80">
+                <button type="button" onClick={() => goTo('/')} className="hover:text-white">
+                  {labels.home}
                 </button>
-                <span className="text-white/30">/</span>
-                <button
-                  type="button"
-                  onClick={() => setLanguage('en')}
-                  className={language === 'en' ? 'text-white' : 'text-white/40 hover:text-white/70'}
-                >
-                  EN
+
+                <button type="button" onClick={() => goTo('/dental')} className="hover:text-white">
+                  {labels.dental}
                 </button>
+
+                {isDentalPage ? (
+                  <>
+                    <button type="button" onClick={() => scrollToSection('what')} className="hover:text-white">
+                      {labels.what}
+                    </button>
+                    <button type="button" onClick={() => scrollToSection('pricing')} className="hover:text-white">
+                      {labels.pricing}
+                    </button>
+                    <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">
+                      {labels.faq}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" onClick={() => scrollToSection('solutions')} className="hover:text-white">
+                      {labels.solutions}
+                    </button>
+                    <button type="button" onClick={() => scrollToSection('apps')} className="hover:text-white">
+                      {labels.apps}
+                    </button>
+                    <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">
+                      {labels.faq}
+                    </button>
+                  </>
+                )}
+                <button type="button" onClick={() => scrollToSection('contact')} className="hover:text-white">
+                  {labels.contact}
+                </button>
+              </nav>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/70">
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('es')}
+                    className={language === 'es' ? 'text-white' : 'text-white/40 hover:text-white/70'}
+                  >
+                    ES
+                  </button>
+                  <span className="text-white/30">/</span>
+                  <button
+                    type="button"
+                    onClick={() => setLanguage('en')}
+                    className={language === 'en' ? 'text-white' : 'text-white/40 hover:text-white/70'}
+                  >
+                    EN
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <CurrentPage />
-        <Footer />
-        <LeadIntakeWidget language={language} />
-      </div>
+          {page}
+          <Footer />
+          {showSalesWidget ? <LeadIntakeWidget language={language} /> : null}
+        </div>
+      )}
     </NavigationProvider>
   );
 };

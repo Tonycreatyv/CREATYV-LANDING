@@ -1,0 +1,213 @@
+/* BarberLine landing page styles
+ * Import this file in BarberLanding.tsx:  import './barber.css';
+ * All class names are prefixed with "bl-" to avoid collisions.
+ *
+ * Prerequisites for the host app:
+ *   - Tailwind CSS (for utility classes used in JSX)
+ *   - lucide-react  (npm i lucide-react)
+ *   - Inter font (add to your <head> or global CSS):
+ *     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+ */
+
+/* ── Typography gradient ── */
+.bl-text-gold-gradient {
+  background: linear-gradient(135deg, #ede8e0 0%, #c9b490 55%, #b8a07f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Section heading ── */
+.bl-section-h2 {
+  font-size: clamp(26px, 6vw, 42px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: #ece7e0;
+}
+
+/* ── Buttons ── */
+.bl-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #1a9e52 0%, #15803e 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(26,158,82,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bl-btn-primary:hover {
+  background: linear-gradient(135deg, #1db360 0%, #16904a 100%);
+  box-shadow: 0 6px 28px rgba(26,158,82,0.38), inset 0 1px 0 rgba(255,255,255,0.14);
+  transform: translateY(-1px);
+}
+.bl-btn-primary:active { transform: scale(0.98); }
+
+.bl-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.65);
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.10);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  cursor: pointer;
+}
+.bl-btn-outline:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border-color: rgba(255,255,255,0.18);
+}
+
+/* ── Cards ── */
+.bl-card {
+  background: linear-gradient(145deg, #161412, #111010);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.bl-card:hover {
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 8px 36px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07);
+  transform: translateY(-2px);
+}
+.bl-card-static {
+  background: linear-gradient(145deg, #161412, #111010);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ── Section label pill ── */
+.bl-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: rgba(201,180,144,0.07);
+  border: 1px solid rgba(201,180,144,0.15);
+  border-radius: 100px;
+  padding: 0.25rem 0.875rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c9b490;
+}
+
+/* ── Scroll reveal ── */
+.bl-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1),
+              transform 0.65s cubic-bezier(0.16,1,0.3,1);
+}
+.bl-reveal.bl-visible { opacity: 1; transform: translateY(0); }
+.bl-reveal-delay-1 { transition-delay: 0.08s; }
+.bl-reveal-delay-2 { transition-delay: 0.16s; }
+.bl-reveal-delay-3 { transition-delay: 0.24s; }
+.bl-reveal-delay-4 { transition-delay: 0.32s; }
+
+/* ── WhatsApp interactive button ── */
+.bl-wa-btn-interactive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  color: #027EB5;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: default;
+}
+.bl-wa-btn-interactive + .bl-wa-btn-interactive {
+  border-top: 1px solid #E9EDEF;
+}
+
+/* ── WhatsApp bubbles ── */
+.bl-wa-bubble-received {
+  background: #fff;
+  border-radius: 3px 12px 12px 12px;
+  box-shadow: 0 1px 2px rgba(11,20,26,0.13);
+  overflow: hidden;
+}
+.bl-wa-bubble-sent {
+  background: #D9FDD3;
+  border-radius: 12px 3px 12px 12px;
+  box-shadow: 0 1px 2px rgba(11,20,26,0.13);
+}
+
+/* ── Scrollbar hidden ── */
+.bl-scrollbar-none::-webkit-scrollbar { display: none; }
+.bl-scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Hero atmospheric layers ── */
+.bl-hero-ambient-warm {
+  position: absolute;
+  width: 560px; height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(90,58,22,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.bl-hero-ambient-cool {
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16,80,50,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.bl-hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 54px 54px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 100%);
+}
+
+/* ── Section separator ── */
+.bl-sep {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0.05) 70%, transparent);
+}
+
+/* ── Animations ── */
+@keyframes bl-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes bl-pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes bl-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bl-animate-float      { animation: bl-float 6s ease-in-out infinite; }
+.bl-animate-pulse-soft { animation: bl-pulse-soft 2.5s ease-in-out infinite; }
+.bl-animate-fade-up    { animation: bl-fade-up 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+/* ── Text selection ── */
+.barber-page ::selection { background: #25D366; color: #090807; }
