@@ -1,28 +1,19 @@
-import { ComponentType, LazyExoticComponent, Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { ComponentType, useEffect, useMemo, useState } from 'react';
 import Home from './pages/Home';
 import DentalConnect from './pages/DentalConnect';
 import BarberLanding from './barber/BarberLanding';
 import Trial from './pages/Trial';
 import Legal from './pages/Legal';
-import ClinicPortal from './pages/ClinicPortal';
-import SalesRuntime from './pages/SalesRuntime';
 import Footer from './components/Footer';
 import { useLanguage } from './context/LanguageContext';
 import { NavigationProvider } from './context/NavigationContext';
 import LeadIntakeWidget from './components/LeadIntakeWidget';
 
-const BarberLanding = lazy(() => import('./barber/BarberLanding'));
-
-type RouteComponent = ComponentType | LazyExoticComponent<ComponentType>;
-
-const routes: Record<string, RouteComponent> = {
+const routes: Record<string, ComponentType> = {
   '/': Home,
   '/dental': DentalConnect,
   '/barber': BarberLanding,
-  '/barberline': BarberLine,
   '/trial': Trial,
-  '/app': ClinicPortal,
-  '/sales-runtime': SalesRuntime,
   '/legal': Legal,
   '/privacy': Legal,
   '/terms': Legal,
@@ -35,7 +26,7 @@ const App = () => {
   const { language, setLanguage } = useLanguage();
   const isDentalPage = path === '/dental';
   const isBarberPage = path === '/barber';
-  const showSalesWidget = !['/app', '/sales-runtime', '/barber'].includes(path);
+  const showSalesWidget = path !== '/barber';
 
   const navI18n = {
     es: {
@@ -62,7 +53,7 @@ const App = () => {
   const labels = navI18n[language];
 
   // solo páginas “landing” donde se puede hacer scrollToSection sin redirigir
-  const landingPaths = useMemo(() => new Set(['/', '/dental', '/barberline']), []);
+  const landingPaths = useMemo(() => new Set(['/', '/dental']), []);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -132,16 +123,11 @@ const App = () => {
   }, [hash, path]);
 
   const CurrentPage = routes[path] ?? Home;
-  const page = (
-    <Suspense fallback={null}>
-      <CurrentPage />
-    </Suspense>
-  );
 
   return (
     <NavigationProvider value={{ goTo, scrollToSection }}>
       {isBarberPage ? (
-        page
+        <CurrentPage />
       ) : (
         <div className="min-h-screen bg-[#0f0f0f] text-white">
           <header className="px-6 py-4 border-b border-white/10 sticky top-0 bg-[#0f0f0f]/95 backdrop-blur z-10">
@@ -215,7 +201,7 @@ const App = () => {
             </div>
           </header>
 
-          {page}
+          <CurrentPage />
           <Footer />
           {showSalesWidget ? <LeadIntakeWidget language={language} /> : null}
         </div>
