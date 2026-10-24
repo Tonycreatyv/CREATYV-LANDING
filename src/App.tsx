@@ -4,6 +4,7 @@ import DentalConnect from './pages/DentalConnect';
 import BarberLanding from './barber/BarberLanding';
 import Trial from './pages/Trial';
 import Legal from './pages/Legal';
+import Onboarding from './pages/Onboarding';
 import Footer from './components/Footer';
 import { useLanguage } from './context/LanguageContext';
 import { NavigationProvider } from './context/NavigationContext';
@@ -15,6 +16,7 @@ const routes: Record<string, ComponentType> = {
   '/barber': BarberLanding,
   '/trial': Trial,
   '/legal': Legal,
+  '/onboarding': Onboarding,
   '/privacy': Legal,
   '/terms': Legal,
   '/data-deletion': Legal,
@@ -27,7 +29,8 @@ const App = () => {
   const isHomePage = path === '/';
   const isDentalPage = path === '/dental';
   const isBarberPage = path === '/barber';
-  const showSalesWidget = path !== '/barber' && path !== '/';
+  const isOnboardingPage = path === '/onboarding';
+  const showSalesWidget = path !== '/barber' && path !== '/' && path !== '/onboarding';
 
   const navI18n = {
     es: {
@@ -125,7 +128,7 @@ const App = () => {
 
   return (
     <NavigationProvider value={{ goTo, scrollToSection }}>
-      {isHomePage || isBarberPage ? (
+      {isHomePage || isBarberPage || isOnboardingPage ? (
         <CurrentPage />
       ) : (
         <div className="min-h-screen bg-[#0f0f0f] text-white">
