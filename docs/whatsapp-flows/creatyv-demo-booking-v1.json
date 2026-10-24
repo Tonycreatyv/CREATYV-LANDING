@@ -1,13 +1,5 @@
 {
-  "version": "7.1",
-  "data_api_version": "3.0",
-  "routing_model": {
-    "SERVICE": ["DATE"],
-    "DATE": ["TIME"],
-    "TIME": ["DETAILS"],
-    "DETAILS": ["CONFIRM"],
-    "CONFIRM": []
-  },
+  "version": "7.3",
   "screens": [
     {
       "id": "SERVICE",
@@ -25,7 +17,7 @@
               },
               {
                 "type": "TextBody",
-                "text": "Esta es una experiencia de demostración con datos ficticios."
+                "text": "Probá una experiencia de reserva dentro de WhatsApp. Todos los datos de esta demo son ficticios."
               },
               {
                 "type": "RadioButtonsGroup",
@@ -79,7 +71,11 @@
                 "required": true,
                 "min-date": "2026-10-24",
                 "max-date": "2026-12-31",
-                "unavailable-dates": ["2026-10-25", "2026-11-01"]
+                "unavailable-dates": [
+                  "2026-10-25",
+                  "2026-11-01",
+                  "2026-11-08"
+                ]
               },
               {
                 "type": "Footer",
@@ -117,11 +113,14 @@
                 "text": "Horarios disponibles"
               },
               {
-                "type": "ChipsSelector",
+                "type": "TextBody",
+                "text": "Estos horarios son datos de demostración."
+              },
+              {
+                "type": "RadioButtonsGroup",
                 "name": "appointment_time",
                 "label": "Elige una hora",
                 "required": true,
-                "max-selected-items": 1,
                 "data-source": [
                   { "id": "09:00", "title": "9:00 a. m." },
                   { "id": "10:00", "title": "10:00 a. m." },
@@ -155,7 +154,7 @@
       "data": {
         "service": { "type": "string", "__example__": "consulta" },
         "appointment_date": { "type": "string", "__example__": "2026-10-26" },
-        "appointment_time": { "type": "array", "items": { "type": "string" }, "__example__": ["10:00"] }
+        "appointment_time": { "type": "string", "__example__": "10:00" }
       },
       "layout": {
         "type": "SingleColumnLayout",
@@ -209,7 +208,7 @@
       "data": {
         "service": { "type": "string", "__example__": "consulta" },
         "appointment_date": { "type": "string", "__example__": "2026-10-26" },
-        "appointment_time": { "type": "array", "items": { "type": "string" }, "__example__": ["10:00"] },
+        "appointment_time": { "type": "string", "__example__": "10:00" },
         "name": { "type": "string", "__example__": "Ana García" },
         "phone": { "type": "string", "__example__": "+50499999999" }
       },
@@ -217,27 +216,33 @@
         "type": "SingleColumnLayout",
         "children": [
           {
-            "type": "TextHeading",
-            "text": "¡Listo!"
-          },
-          {
-            "type": "TextBody",
-            "text": "Esta fue una reserva simulada de Creatyv. En un negocio real, aquí confirmaríamos la cita y continuaríamos el seguimiento por WhatsApp."
-          },
-          {
-            "type": "Footer",
-            "label": "Finalizar demo",
-            "on-click-action": {
-              "name": "complete",
-              "payload": {
-                "service": "${data.service}",
-                "appointment_date": "${data.appointment_date}",
-                "appointment_time": "${data.appointment_time}",
-                "name": "${data.name}",
-                "phone": "${data.phone}",
-                "demo": true
+            "type": "Form",
+            "name": "confirm_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "¡Listo!"
+              },
+              {
+                "type": "TextBody",
+                "text": "La solicitud de prueba está lista. En una instalación real, Creatyv puede confirmar la cita y continuar el seguimiento por WhatsApp."
+              },
+              {
+                "type": "Footer",
+                "label": "Finalizar demo",
+                "on-click-action": {
+                  "name": "complete",
+                  "payload": {
+                    "service": "${data.service}",
+                    "appointment_date": "${data.appointment_date}",
+                    "appointment_time": "${data.appointment_time}",
+                    "name": "${data.name}",
+                    "phone": "${data.phone}",
+                    "demo": true
+                  }
+                }
               }
-            }
+            ]
           }
         ]
       }
