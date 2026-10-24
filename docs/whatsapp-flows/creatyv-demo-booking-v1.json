@@ -1,0 +1,246 @@
+{
+  "version": "7.1",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "SERVICE": ["DATE"],
+    "DATE": ["TIME"],
+    "TIME": ["DETAILS"],
+    "DETAILS": ["CONFIRM"],
+    "CONFIRM": []
+  },
+  "screens": [
+    {
+      "id": "SERVICE",
+      "title": "Creatyv Demo",
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "service_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "Agendar una cita"
+              },
+              {
+                "type": "TextBody",
+                "text": "Esta es una experiencia de demostración con datos ficticios."
+              },
+              {
+                "type": "RadioButtonsGroup",
+                "name": "service",
+                "label": "Selecciona un servicio",
+                "required": true,
+                "data-source": [
+                  { "id": "consulta", "title": "Consulta general" },
+                  { "id": "limpieza", "title": "Limpieza dental" },
+                  { "id": "evaluacion", "title": "Evaluación" }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": { "type": "screen", "name": "DATE" },
+                  "payload": {
+                    "service": "${form.service}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "DATE",
+      "title": "Elegir fecha",
+      "data": {
+        "service": { "type": "string", "__example__": "consulta" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "date_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "Selecciona una fecha"
+              },
+              {
+                "type": "CalendarPicker",
+                "name": "appointment_date",
+                "label": "Fecha",
+                "mode": "single",
+                "required": true,
+                "min-date": "2026-10-24",
+                "max-date": "2026-12-31",
+                "unavailable-dates": ["2026-10-25", "2026-11-01"]
+              },
+              {
+                "type": "Footer",
+                "label": "Ver horarios",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": { "type": "screen", "name": "TIME" },
+                  "payload": {
+                    "service": "${data.service}",
+                    "appointment_date": "${form.appointment_date}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "TIME",
+      "title": "Elegir hora",
+      "data": {
+        "service": { "type": "string", "__example__": "consulta" },
+        "appointment_date": { "type": "string", "__example__": "2026-10-26" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "time_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "Horarios disponibles"
+              },
+              {
+                "type": "ChipsSelector",
+                "name": "appointment_time",
+                "label": "Elige una hora",
+                "required": true,
+                "max-selected-items": 1,
+                "data-source": [
+                  { "id": "09:00", "title": "9:00 a. m." },
+                  { "id": "10:00", "title": "10:00 a. m." },
+                  { "id": "11:00", "title": "11:00 a. m." },
+                  { "id": "14:00", "title": "2:00 p. m." },
+                  { "id": "15:00", "title": "3:00 p. m." },
+                  { "id": "16:00", "title": "4:00 p. m." }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": { "type": "screen", "name": "DETAILS" },
+                  "payload": {
+                    "service": "${data.service}",
+                    "appointment_date": "${data.appointment_date}",
+                    "appointment_time": "${form.appointment_time}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "DETAILS",
+      "title": "Tus datos",
+      "data": {
+        "service": { "type": "string", "__example__": "consulta" },
+        "appointment_date": { "type": "string", "__example__": "2026-10-26" },
+        "appointment_time": { "type": "array", "items": { "type": "string" }, "__example__": ["10:00"] }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "details_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "Completa la solicitud"
+              },
+              {
+                "type": "TextInput",
+                "name": "name",
+                "label": "Nombre",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "name": "phone",
+                "label": "Teléfono",
+                "input-type": "phone",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Revisar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": { "type": "screen", "name": "CONFIRM" },
+                  "payload": {
+                    "service": "${data.service}",
+                    "appointment_date": "${data.appointment_date}",
+                    "appointment_time": "${data.appointment_time}",
+                    "name": "${form.name}",
+                    "phone": "${form.phone}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM",
+      "title": "Confirmación",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "service": { "type": "string", "__example__": "consulta" },
+        "appointment_date": { "type": "string", "__example__": "2026-10-26" },
+        "appointment_time": { "type": "array", "items": { "type": "string" }, "__example__": ["10:00"] },
+        "name": { "type": "string", "__example__": "Ana García" },
+        "phone": { "type": "string", "__example__": "+50499999999" }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "¡Listo!"
+          },
+          {
+            "type": "TextBody",
+            "text": "Esta fue una reserva simulada de Creatyv. En un negocio real, aquí confirmaríamos la cita y continuaríamos el seguimiento por WhatsApp."
+          },
+          {
+            "type": "Footer",
+            "label": "Finalizar demo",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "service": "${data.service}",
+                "appointment_date": "${data.appointment_date}",
+                "appointment_time": "${data.appointment_time}",
+                "name": "${data.name}",
+                "phone": "${data.phone}",
+                "demo": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
