@@ -1,18 +1,5 @@
-import { useNavigation } from '../context/NavigationContext';
-import MainLanding from '../components/MainLanding';
-import { useLanguage } from '../context/LanguageContext';
+import WhatsAppDemoLanding from '../components/WhatsAppDemoLanding';
 
-const Home = () => {
-  const { language } = useLanguage();
-  const { scrollToSection, goTo } = useNavigation();
-
-  return (
-    <MainLanding
-      language={language}
-      onPrimaryAction={() => scrollToSection('solutions')}
-      onSecondaryAction={() => goTo('/dental')}
-    />
-  );
-};
+const Home = () => <WhatsAppDemoLanding />;
 
 export default Home;
