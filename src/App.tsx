@@ -24,9 +24,10 @@ const App = () => {
   const [path, setPath] = useState(window.location.pathname);
   const [hash, setHash] = useState(window.location.hash);
   const { language, setLanguage } = useLanguage();
+  const isHomePage = path === '/';
   const isDentalPage = path === '/dental';
   const isBarberPage = path === '/barber';
-  const showSalesWidget = path !== '/barber';
+  const showSalesWidget = path !== '/barber' && path !== '/';
 
   const navI18n = {
     es: {
@@ -51,8 +52,6 @@ const App = () => {
     },
   } as const;
   const labels = navI18n[language];
-
-  // solo páginas “landing” donde se puede hacer scrollToSection sin redirigir
   const landingPaths = useMemo(() => new Set(['/', '/dental']), []);
 
   useEffect(() => {
@@ -126,7 +125,7 @@ const App = () => {
 
   return (
     <NavigationProvider value={{ goTo, scrollToSection }}>
-      {isBarberPage ? (
+      {isHomePage || isBarberPage ? (
         <CurrentPage />
       ) : (
         <div className="min-h-screen bg-[#0f0f0f] text-white">
@@ -141,61 +140,30 @@ const App = () => {
               </button>
 
               <nav className="flex flex-wrap items-center gap-4 text-xs tracking-[0.3em] uppercase text-white/80">
-                <button type="button" onClick={() => goTo('/')} className="hover:text-white">
-                  {labels.home}
-                </button>
-
-                <button type="button" onClick={() => goTo('/dental')} className="hover:text-white">
-                  {labels.dental}
-                </button>
+                <button type="button" onClick={() => goTo('/')} className="hover:text-white">{labels.home}</button>
+                <button type="button" onClick={() => goTo('/dental')} className="hover:text-white">{labels.dental}</button>
 
                 {isDentalPage ? (
                   <>
-                    <button type="button" onClick={() => scrollToSection('what')} className="hover:text-white">
-                      {labels.what}
-                    </button>
-                    <button type="button" onClick={() => scrollToSection('pricing')} className="hover:text-white">
-                      {labels.pricing}
-                    </button>
-                    <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">
-                      {labels.faq}
-                    </button>
+                    <button type="button" onClick={() => scrollToSection('what')} className="hover:text-white">{labels.what}</button>
+                    <button type="button" onClick={() => scrollToSection('pricing')} className="hover:text-white">{labels.pricing}</button>
+                    <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">{labels.faq}</button>
                   </>
                 ) : (
                   <>
-                    <button type="button" onClick={() => scrollToSection('solutions')} className="hover:text-white">
-                      {labels.solutions}
-                    </button>
-                    <button type="button" onClick={() => scrollToSection('apps')} className="hover:text-white">
-                      {labels.apps}
-                    </button>
-                    <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">
-                      {labels.faq}
-                    </button>
+                    <button type="button" onClick={() => scrollToSection('solutions')} className="hover:text-white">{labels.solutions}</button>
+                    <button type="button" onClick={() => scrollToSection('apps')} className="hover:text-white">{labels.apps}</button>
+                    <button type="button" onClick={() => scrollToSection('faq')} className="hover:text-white">{labels.faq}</button>
                   </>
                 )}
-                <button type="button" onClick={() => scrollToSection('contact')} className="hover:text-white">
-                  {labels.contact}
-                </button>
+                <button type="button" onClick={() => scrollToSection('contact')} className="hover:text-white">{labels.contact}</button>
               </nav>
 
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-white/70">
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('es')}
-                    className={language === 'es' ? 'text-white' : 'text-white/40 hover:text-white/70'}
-                  >
-                    ES
-                  </button>
+                  <button type="button" onClick={() => setLanguage('es')} className={language === 'es' ? 'text-white' : 'text-white/40 hover:text-white/70'}>ES</button>
                   <span className="text-white/30">/</span>
-                  <button
-                    type="button"
-                    onClick={() => setLanguage('en')}
-                    className={language === 'en' ? 'text-white' : 'text-white/40 hover:text-white/70'}
-                  >
-                    EN
-                  </button>
+                  <button type="button" onClick={() => setLanguage('en')} className={language === 'en' ? 'text-white' : 'text-white/40 hover:text-white/70'}>EN</button>
                 </div>
               </div>
             </div>
