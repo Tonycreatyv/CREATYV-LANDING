@@ -13,7 +13,7 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "📅 ¿Qué día te queda mejor?"
+                "text": "¿Qué día te queda mejor?"
               },
               {
                 "type": "TextBody",
@@ -66,7 +66,7 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "🕒 ¿A qué hora te funciona?"
+                "text": "¿A qué hora te funciona?"
               },
               {
                 "type": "TextBody",
@@ -127,7 +127,7 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "¿A nombre de quién reservamos?"
+                "text": "¿A nombre de quién dejamos la cita?"
               },
               {
                 "type": "TextBody",
@@ -190,11 +190,11 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "✅ ¡Listo! Tu cita está reservada"
+                "text": "¡Listo! Tu cita está reservada"
               },
               {
                 "type": "TextBody",
-                "text": "Creatyv puede encargarse de la confirmación, recordatorios y seguimiento por WhatsApp."
+                "text": "Tu cita quedó confirmada. Creatyv también puede enviar recordatorios y dar seguimiento automáticamente por WhatsApp."
               },
               {
                 "type": "Footer",
