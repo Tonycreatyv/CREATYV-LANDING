@@ -3,7 +3,7 @@
   "screens": [
     {
       "id": "CALENDAR",
-      "title": "Elegir fecha",
+      "title": "Tu cita",
       "layout": {
         "type": "SingleColumnLayout",
         "children": [
@@ -13,11 +13,11 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "Elegí una fecha"
+                "text": "📅 ¿Qué día te queda mejor?"
               },
               {
                 "type": "TextBody",
-                "text": "Seleccioná el día que te quede mejor."
+                "text": "Elegí una fecha disponible y seguimos con el horario."
               },
               {
                 "type": "CalendarPicker",
@@ -50,7 +50,7 @@
     },
     {
       "id": "TIME",
-      "title": "Elegir hora",
+      "title": "Tu cita",
       "data": {
         "appointment_date": {
           "type": "string",
@@ -66,11 +66,11 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "Horarios disponibles"
+                "text": "🕒 ¿A qué hora te funciona?"
               },
               {
                 "type": "TextBody",
-                "text": "Elegí la hora que mejor te funcione."
+                "text": "Estos son los horarios disponibles para ese día."
               },
               {
                 "type": "ChipsSelector",
@@ -117,7 +117,7 @@
     },
     {
       "id": "DETAILS",
-      "title": "Tus datos",
+      "title": "Último paso",
       "layout": {
         "type": "SingleColumnLayout",
         "children": [
@@ -127,11 +127,11 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "Tus datos"
+                "text": "¿A nombre de quién reservamos?"
               },
               {
                 "type": "TextBody",
-                "text": "Solo necesitamos esto para completar la cita."
+                "text": "Solo necesitamos estos datos para completar la cita."
               },
               {
                 "type": "TextInput",
@@ -148,7 +148,7 @@
               },
               {
                 "type": "Footer",
-                "label": "Revisar",
+                "label": "Revisar cita",
                 "on-click-action": {
                   "name": "navigate",
                   "next": {
@@ -190,11 +190,11 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "Tu cita está lista"
+                "text": "✅ ¡Listo! Tu cita está reservada"
               },
               {
                 "type": "TextBody",
-                "text": "Al finalizar, Creatyv puede guardar la cita y continuar con recordatorios o seguimiento por WhatsApp."
+                "text": "Creatyv puede encargarse de la confirmación, recordatorios y seguimiento por WhatsApp."
               },
               {
                 "type": "Footer",
