@@ -2,12 +2,60 @@
   "version": "7.3",
   "screens": [
     {
+      "id": "CALENDAR",
+      "title": "Elegir fecha",
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "calendar_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "Elegí una fecha"
+              },
+              {
+                "type": "TextBody",
+                "text": "Seleccioná el día que te quede mejor."
+              },
+              {
+                "type": "CalendarPicker",
+                "name": "appointment_date",
+                "label": "Fecha",
+                "mode": "single",
+                "required": true,
+                "min-date": "2026-10-24",
+                "max-date": "2026-12-31",
+                "include-days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+              },
+              {
+                "type": "Footer",
+                "label": "Ver horarios",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "TIME"
+                  },
+                  "payload": {
+                    "appointment_date": "${form.appointment_date}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "TIME",
       "title": "Elegir hora",
       "data": {
-        "service": { "type": "string", "__example__": "Consulta general" },
-        "requested_date": { "type": "string", "__example__": "2026-10-25" },
-        "requested_time_window": { "type": "string", "__example__": "después de las 3:00 p. m." }
+        "appointment_date": {
+          "type": "string",
+          "__example__": "2026-10-26"
+        }
       },
       "layout": {
         "type": "SingleColumnLayout",
@@ -22,18 +70,32 @@
               },
               {
                 "type": "TextBody",
-                "text": "Ya entendí que buscás ${data.service} para ${data.requested_date}, ${data.requested_time_window}. Elegí el horario que te convenga."
+                "text": "Elegí la hora que mejor te funcione."
               },
               {
-                "type": "RadioButtonsGroup",
+                "type": "ChipsSelector",
                 "name": "appointment_time",
-                "label": "Elige una hora",
+                "label": "Hora",
                 "required": true,
+                "min-selected-items": 1,
+                "max-selected-items": 1,
                 "data-source": [
-                  { "id": "15:30", "title": "3:30 p. m." },
-                  { "id": "16:00", "title": "4:00 p. m." },
-                  { "id": "16:30", "title": "4:30 p. m." },
-                  { "id": "17:00", "title": "5:00 p. m." }
+                  {
+                    "id": "15:30",
+                    "title": "3:30 p. m."
+                  },
+                  {
+                    "id": "16:00",
+                    "title": "4:00 p. m."
+                  },
+                  {
+                    "id": "16:30",
+                    "title": "4:30 p. m."
+                  },
+                  {
+                    "id": "17:00",
+                    "title": "5:00 p. m."
+                  }
                 ]
               },
               {
@@ -41,13 +103,11 @@
                 "label": "Continuar",
                 "on-click-action": {
                   "name": "navigate",
-                  "next": { "type": "screen", "name": "DETAILS" },
-                  "payload": {
-                    "service": "${data.service}",
-                    "requested_date": "${data.requested_date}",
-                    "requested_time_window": "${data.requested_time_window}",
-                    "appointment_time": "${form.appointment_time}"
-                  }
+                  "next": {
+                    "type": "screen",
+                    "name": "DETAILS"
+                  },
+                  "payload": {}
                 }
               }
             ]
@@ -58,12 +118,6 @@
     {
       "id": "DETAILS",
       "title": "Tus datos",
-      "data": {
-        "service": { "type": "string", "__example__": "Consulta general" },
-        "requested_date": { "type": "string", "__example__": "2026-10-25" },
-        "requested_time_window": { "type": "string", "__example__": "después de las 3:00 p. m." },
-        "appointment_time": { "type": "string", "__example__": "16:00" }
-      },
       "layout": {
         "type": "SingleColumnLayout",
         "children": [
@@ -73,7 +127,11 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "¿A nombre de quién?"
+                "text": "Tus datos"
+              },
+              {
+                "type": "TextBody",
+                "text": "Solo necesitamos esto para completar la cita."
               },
               {
                 "type": "TextInput",
@@ -93,12 +151,11 @@
                 "label": "Revisar",
                 "on-click-action": {
                   "name": "navigate",
-                  "next": { "type": "screen", "name": "CONFIRM" },
+                  "next": {
+                    "type": "screen",
+                    "name": "CONFIRM"
+                  },
                   "payload": {
-                    "service": "${data.service}",
-                    "requested_date": "${data.requested_date}",
-                    "requested_time_window": "${data.requested_time_window}",
-                    "appointment_time": "${data.appointment_time}",
                     "name": "${form.name}",
                     "phone": "${form.phone}"
                   }
@@ -115,12 +172,14 @@
       "terminal": true,
       "success": true,
       "data": {
-        "service": { "type": "string", "__example__": "Consulta general" },
-        "requested_date": { "type": "string", "__example__": "2026-10-25" },
-        "requested_time_window": { "type": "string", "__example__": "después de las 3:00 p. m." },
-        "appointment_time": { "type": "string", "__example__": "16:00" },
-        "name": { "type": "string", "__example__": "Ana García" },
-        "phone": { "type": "string", "__example__": "+14045550199" }
+        "name": {
+          "type": "string",
+          "__example__": "Ana García"
+        },
+        "phone": {
+          "type": "string",
+          "__example__": "+14045550199"
+        }
       },
       "layout": {
         "type": "SingleColumnLayout",
@@ -131,11 +190,11 @@
             "children": [
               {
                 "type": "TextHeading",
-                "text": "¡Listo!"
+                "text": "Tu cita está lista"
               },
               {
                 "type": "TextBody",
-                "text": "Esta es una cita simulada de Creatyv. En una instalación real, el negocio recibiría la solicitud y Creatyv podría continuar el seguimiento por WhatsApp."
+                "text": "Al finalizar, Creatyv puede guardar la cita y continuar con recordatorios o seguimiento por WhatsApp."
               },
               {
                 "type": "Footer",
@@ -143,10 +202,8 @@
                 "on-click-action": {
                   "name": "complete",
                   "payload": {
-                    "service": "${data.service}",
-                    "requested_date": "${data.requested_date}",
-                    "requested_time_window": "${data.requested_time_window}",
-                    "appointment_time": "${data.appointment_time}",
+                    "appointment_date": "${screen.CALENDAR.form.appointment_date}",
+                    "appointment_time": "${screen.TIME.form.appointment_time}",
                     "name": "${data.name}",
                     "phone": "${data.phone}",
                     "demo": true
