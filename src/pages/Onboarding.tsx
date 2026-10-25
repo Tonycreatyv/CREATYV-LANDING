@@ -255,6 +255,30 @@ const Onboarding = () => {
     });
   };
 
+  const finishWhatsAppConnection = async (prepared: { organizationId: string; state: string; fb: FacebookSdk }, code: string) => {
+    preparedRef.current = null;
+    setMetaReady(false);
+
+    try {
+      const result = await callSignup({
+        action: 'exchange',
+        organization_id: selectedOrg,
+        code,
+        state: prepared.state,
+        waba_id: metaSessionRef.current.wabaId,
+        phone_number_id: metaSessionRef.current.phoneNumberId,
+      });
+      setConnectedPhone(String(result.display_phone_number || result.phone_number_id || 'WhatsApp conectado'));
+      setMessage('WhatsApp quedó conectado correctamente a este negocio.');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'unknown_error';
+      setMessage(`Meta autorizó la conexión, pero Creatyv no pudo terminar el registro. Diagnóstico: ${detail}`);
+    } finally {
+      setBusy(false);
+      prepareNextMetaAttempt();
+    }
+  };
+
   const connectWhatsApp = () => {
     if (!selectedOrg || !selectedBusiness || selectedBusiness.role === 'operator') return;
     const prepared = preparedRef.current;
@@ -269,7 +293,7 @@ const Onboarding = () => {
     metaSessionRef.current = {};
 
     try {
-      prepared.fb.login(async (response) => {
+      const fbLoginCallback = (response: FacebookLoginResponse) => {
         const code = response.authResponse?.code;
         if (!code) {
           setBusy(false);
@@ -278,28 +302,10 @@ const Onboarding = () => {
           return;
         }
 
-        preparedRef.current = null;
-        setMetaReady(false);
+        void finishWhatsAppConnection(prepared, code);
+      };
 
-        try {
-          const result = await callSignup({
-            action: 'exchange',
-            organization_id: selectedOrg,
-            code,
-            state: prepared.state,
-            waba_id: metaSessionRef.current.wabaId,
-            phone_number_id: metaSessionRef.current.phoneNumberId,
-          });
-          setConnectedPhone(String(result.display_phone_number || result.phone_number_id || 'WhatsApp conectado'));
-          setMessage('WhatsApp quedó conectado correctamente a este negocio.');
-        } catch (error) {
-          const detail = error instanceof Error ? error.message : 'unknown_error';
-          setMessage(`Meta autorizó la conexión, pero Creatyv no pudo terminar el registro. Diagnóstico: ${detail}`);
-        } finally {
-          setBusy(false);
-          prepareNextMetaAttempt();
-        }
-      }, {
+      prepared.fb.login(fbLoginCallback, {
         config_id: META_CONFIG_ID,
         response_type: 'code',
         override_default_response_type: true,
