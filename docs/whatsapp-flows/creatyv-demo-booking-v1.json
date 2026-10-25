@@ -1,0 +1,219 @@
+{
+  "version": "7.3",
+  "screens": [
+    {
+      "id": "CALENDAR",
+      "title": "Tu cita",
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "calendar_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "¿Qué día te queda mejor?"
+              },
+              {
+                "type": "TextBody",
+                "text": "Elegí una fecha disponible y seguimos con el horario."
+              },
+              {
+                "type": "CalendarPicker",
+                "name": "appointment_date",
+                "label": "Fecha",
+                "mode": "single",
+                "required": true,
+                "min-date": "2026-10-24",
+                "max-date": "2026-12-31",
+                "include-days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+              },
+              {
+                "type": "Footer",
+                "label": "Ver horarios",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "TIME"
+                  },
+                  "payload": {
+                    "appointment_date": "${form.appointment_date}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "TIME",
+      "title": "Tu cita",
+      "data": {
+        "appointment_date": {
+          "type": "string",
+          "__example__": "2026-10-26"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "time_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "¿A qué hora te funciona?"
+              },
+              {
+                "type": "TextBody",
+                "text": "Estos son los horarios disponibles para ese día."
+              },
+              {
+                "type": "ChipsSelector",
+                "name": "appointment_time",
+                "label": "Hora",
+                "required": true,
+                "min-selected-items": 1,
+                "max-selected-items": 1,
+                "data-source": [
+                  {
+                    "id": "15:30",
+                    "title": "3:30 p. m."
+                  },
+                  {
+                    "id": "16:00",
+                    "title": "4:00 p. m."
+                  },
+                  {
+                    "id": "16:30",
+                    "title": "4:30 p. m."
+                  },
+                  {
+                    "id": "17:00",
+                    "title": "5:00 p. m."
+                  }
+                ]
+              },
+              {
+                "type": "Footer",
+                "label": "Continuar",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "DETAILS"
+                  },
+                  "payload": {}
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "DETAILS",
+      "title": "Último paso",
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "details_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "¿A nombre de quién dejamos la cita?"
+              },
+              {
+                "type": "TextBody",
+                "text": "Solo necesitamos estos datos para completar la cita."
+              },
+              {
+                "type": "TextInput",
+                "name": "name",
+                "label": "Nombre",
+                "required": true
+              },
+              {
+                "type": "TextInput",
+                "name": "phone",
+                "label": "Teléfono",
+                "input-type": "phone",
+                "required": true
+              },
+              {
+                "type": "Footer",
+                "label": "Revisar cita",
+                "on-click-action": {
+                  "name": "navigate",
+                  "next": {
+                    "type": "screen",
+                    "name": "CONFIRM"
+                  },
+                  "payload": {
+                    "name": "${form.name}",
+                    "phone": "${form.phone}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "CONFIRM",
+      "title": "Confirmación",
+      "terminal": true,
+      "success": true,
+      "data": {
+        "name": {
+          "type": "string",
+          "__example__": "Ana García"
+        },
+        "phone": {
+          "type": "string",
+          "__example__": "+14045550199"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "confirm_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "¡Listo! Tu cita está reservada"
+              },
+              {
+                "type": "TextBody",
+                "text": "Tu cita quedó confirmada. Creatyv también puede enviar recordatorios y dar seguimiento automáticamente por WhatsApp."
+              },
+              {
+                "type": "Footer",
+                "label": "Finalizar demo",
+                "on-click-action": {
+                  "name": "complete",
+                  "payload": {
+                    "appointment_date": "${screen.CALENDAR.form.appointment_date}",
+                    "appointment_time": "${screen.TIME.form.appointment_time}",
+                    "name": "${data.name}",
+                    "phone": "${data.phone}",
+                    "demo": true
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
