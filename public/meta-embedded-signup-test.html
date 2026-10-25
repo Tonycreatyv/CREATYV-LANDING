@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creatyv · Meta Embedded Signup Test</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f3f0e9;color:#11171c;display:grid;place-items:center;min-height:100vh;margin:0}
+    main{width:min(560px,90vw);background:#fff;border:1px solid #ddd7cc;border-radius:24px;padding:32px;box-shadow:0 20px 50px rgba(0,0,0,.08)}
+    button{width:100%;height:52px;border:0;border-radius:14px;background:#1877f2;color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+    pre{white-space:pre-wrap;word-break:break-word;background:#f7f5f0;border-radius:12px;padding:14px;min-height:80px;margin-top:18px;font-size:12px}
+    .muted{color:#6e6e6e;font-size:13px;line-height:1.5}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Meta Embedded Signup · Test aislado</h1>
+    <p class="muted">Esta página no usa Supabase ni Creatyv Core. Solo prueba el JavaScript SDK de Meta con la configuración 1135925598950894.</p>
+    <button id="launch" disabled>Preparando SDK…</button>
+    <pre id="status">Cargando SDK de Meta…</pre>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const button = document.getElementById('launch');
+    const log = (value) => { statusEl.textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2); };
+
+    window.addEventListener('message', (event) => {
+      if (event.origin !== 'https://www.facebook.com' && event.origin !== 'https://web.facebook.com') return;
+      let data = event.data;
+      try { if (typeof data === 'string') data = JSON.parse(data); } catch (_) {}
+      log({ type: 'message', origin: event.origin, data });
+    });
+
+    const fbLoginCallback = (response) => {
+      log({ type: 'fbLoginCallback', response });
+    };
+
+    const launchWhatsAppSignup = () => {
+      log('FB.login() llamado. Si Meta abre una ventana, completá o cancelá el flujo para recibir callback.');
+      try {
+        FB.login(fbLoginCallback, {
+          config_id: '1135925598950894',
+          response_type: 'code',
+          override_default_response_type: true,
+          extras: {"version":"v4"}
+        });
+      } catch (error) {
+        log({ type: 'exception', message: error && error.message ? error.message : String(error) });
+      }
+    };
+
+    window.fbAsyncInit = function() {
+      try {
+        FB.init({
+          appId: '2290735921663266',
+          cookie: true,
+          xfbml: false,
+          version: 'v26.0'
+        });
+        button.disabled = false;
+        button.textContent = 'Login with Facebook';
+        log('SDK listo. Tocá el botón.');
+      } catch (error) {
+        log({ type: 'fb_init_error', message: error && error.message ? error.message : String(error) });
+      }
+    };
+
+    button.addEventListener('click', launchWhatsAppSignup);
+  </script>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+</body>
+</html>
