@@ -47,23 +47,67 @@ function parseMetaSessionInfo(event: MessageEvent): MetaSessionInfo | null {
   return { wabaId: wabaId || undefined, phoneNumberId: phoneNumberId || undefined };
 }
 
+function initializeFacebookSdk(fb: FacebookSdk) {
+  fb.init({ appId: META_APP_ID, cookie: true, xfbml: false, version: 'v26.0' });
+  return fb;
+}
+
 function loadFacebookSdk() {
-  if (window.FB) return Promise.resolve(window.FB);
+  if (window.FB) return Promise.resolve(initializeFacebookSdk(window.FB));
   return new Promise<FacebookSdk>((resolve, reject) => {
-    const existing = document.getElementById('facebook-jssdk');
-    window.fbAsyncInit = () => {
-      if (!window.FB) return reject(new Error('facebook_sdk_unavailable'));
-      window.FB.init({ appId: META_APP_ID, cookie: true, xfbml: false, version: 'v26.0' });
-      resolve(window.FB);
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      if (!window.FB) {
+        settled = true;
+        reject(new Error('facebook_sdk_unavailable'));
+        return;
+      }
+      try {
+        const fb = initializeFacebookSdk(window.FB);
+        settled = true;
+        resolve(fb);
+      } catch (error) {
+        settled = true;
+        reject(error instanceof Error ? error : new Error('facebook_sdk_init_failed'));
+      }
     };
-    if (existing) return;
+
+    window.fbAsyncInit = finish;
+    const existing = document.getElementById('facebook-jssdk');
+    if (existing) {
+      let attempts = 0;
+      const timer = window.setInterval(() => {
+        attempts += 1;
+        if (window.FB) {
+          window.clearInterval(timer);
+          finish();
+        } else if (attempts >= 50) {
+          window.clearInterval(timer);
+          if (!settled) {
+            settled = true;
+            reject(new Error('facebook_sdk_timeout'));
+          }
+        }
+      }, 100);
+      return;
+    }
+
     const script = document.createElement('script');
     script.id = 'facebook-jssdk';
     script.async = true;
     script.defer = true;
     script.crossOrigin = 'anonymous';
     script.src = 'https://connect.facebook.net/en_US/sdk.js';
-    script.onerror = () => reject(new Error('facebook_sdk_load_failed'));
+    script.onload = () => {
+      if (window.FB) finish();
+    };
+    script.onerror = () => {
+      if (!settled) {
+        settled = true;
+        reject(new Error('facebook_sdk_load_failed'));
+      }
+    };
     document.body.appendChild(script);
   });
 }
@@ -231,9 +275,10 @@ const Onboarding = () => {
         override_default_response_type: true,
         extras: { sessionInfoVersion: '3', version: 'v4' },
       });
-    } catch {
+    } catch (error) {
       setBusy(false);
-      setMessage('No pudimos iniciar la conexión segura.');
+      const detail = error instanceof Error ? error.message : 'unknown_error';
+      setMessage(`No pudimos iniciar la conexión con Meta. Diagnóstico: ${detail}`);
     }
   };
 
