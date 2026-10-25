@@ -309,7 +309,11 @@ const Onboarding = () => {
         config_id: META_CONFIG_ID,
         response_type: 'code',
         override_default_response_type: true,
-        extras: { version: 'v4' },
+        extras: {
+          featureType: 'whatsapp_business_app_onboarding',
+          sessionInfoVersion: '3',
+          version: 'v4',
+        },
       });
     } catch (error) {
       setBusy(false);
@@ -350,10 +354,10 @@ const Onboarding = () => {
               Conecta tu negocio.<br /><span className="text-black/42">Creatyv hace el resto.</span>
             </h1>
             <p className="mt-7 max-w-[565px] text-[17px] leading-[1.7] text-black/57 md:text-[19px]">
-              Cada empresa conecta su propio WhatsApp Business mediante Meta. Creatyv identifica el negocio antes de iniciar, por lo que números, datos y automatizaciones permanecen separados.
+              Conectá el WhatsApp Business que tu empresa ya usa. El equipo puede seguir atendiendo desde la app mientras Creatyv agrega automatización, seguimiento y operación detrás.
             </p>
             <div className="mt-8 flex flex-wrap gap-3 text-[12px] text-black/55">
-              {['Sin cambiar de número', 'Separado por negocio', 'Sin contraseñas de Facebook'].map((item) => (
+              {['Seguí usando la app', 'Mismo número', 'Separado por negocio'].map((item) => (
                 <div key={item} className="inline-flex items-center gap-2 rounded-full border border-black/7 bg-white/65 px-3.5 py-2.5"><Check size={14} className="text-[#087f84]" /> {item}</div>
               ))}
             </div>
@@ -403,10 +407,10 @@ const Onboarding = () => {
                         </select>
 
                         <div className="mt-6 rounded-2xl border border-black/7 bg-[#f7f5f0] p-4">
-                          <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm"><MessageCircle size={18} className="text-[#168a52]" /></div><div><div className="text-[13px] font-medium">WhatsApp Business</div><div className="mt-1 text-[11px] text-black/45">Embedded Signup v4 · Meta</div></div></div>
+                          <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm"><MessageCircle size={18} className="text-[#168a52]" /></div><div><div className="text-[13px] font-medium">WhatsApp Business</div><div className="mt-1 text-[11px] text-black/45">Coexistence v4 · Meta</div></div></div>
                         </div>
                         <button type="button" onClick={connectWhatsApp} disabled={busy || !metaReady || !selectedBusiness || selectedBusiness.role === 'operator'} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0b777b] px-5 py-4 text-[14px] font-semibold text-white shadow-lg shadow-[#0b777b]/15 disabled:cursor-not-allowed disabled:opacity-55">
-                          {busy || !metaReady ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />} {busy ? 'Esperando a Meta…' : metaReady ? 'Conectar WhatsApp' : 'Preparando Meta…'}
+                          {busy || !metaReady ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />} {busy ? 'Esperando a Meta…' : metaReady ? 'Conectar mi WhatsApp actual' : 'Preparando Meta…'}
                         </button>
                         {selectedBusiness?.role === 'operator' ? <p className="mt-3 text-center text-[11px] text-black/45">Solo owner o admin puede conectar canales.</p> : null}
                         {connectedPhone ? <div className="mt-4 rounded-2xl bg-[#e9f8ef] px-4 py-3 text-center text-[12px] font-medium text-[#177047]">✓ {connectedPhone}</div> : null}
@@ -417,7 +421,7 @@ const Onboarding = () => {
                 {message ? <p className="mt-5 rounded-2xl border border-black/7 bg-[#f8f6f1] px-4 py-3 text-center text-[11px] leading-5 text-black/55">{message}</p> : null}
               </div>
             </div>
-            <div className="mx-auto mt-4 w-[88%] text-center text-[10px] leading-5 text-black/38">Conectar aquí no modifica las conexiones de otros negocios, incluido Referral Hub.</div>
+            <div className="mx-auto mt-4 w-[88%] text-center text-[10px] leading-5 text-black/38">La conexión mantiene cada negocio separado y no modifica las conexiones de Referral Hub.</div>
           </div>
         </section>
       </main>
