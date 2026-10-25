@@ -12,16 +12,8 @@ type Membership = {
   name: string;
 };
 
-type MetaSessionInfo = {
-  wabaId?: string;
-  phoneNumberId?: string;
-};
-
-type FacebookLoginResponse = {
-  authResponse?: { code?: string };
-  status?: string;
-};
-
+type MetaSessionInfo = { wabaId?: string; phoneNumberId?: string };
+type FacebookLoginResponse = { authResponse?: { code?: string }; status?: string };
 type FacebookSdk = {
   init: (options: Record<string, unknown>) => void;
   login: (callback: (response: FacebookLoginResponse) => void, options: Record<string, unknown>) => void;
@@ -99,9 +91,7 @@ function loadFacebookSdk() {
     script.defer = true;
     script.crossOrigin = 'anonymous';
     script.src = 'https://connect.facebook.net/en_US/sdk.js';
-    script.onload = () => {
-      if (window.FB) finish();
-    };
+    script.onload = () => { if (window.FB) finish(); };
     script.onerror = () => {
       if (!settled) {
         settled = true;
@@ -117,11 +107,13 @@ const Onboarding = () => {
   const [businessName, setBusinessName] = useState('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [memberships, setMemberships] = useState<Membership[]>([]);
-  const [selectedOrg, setSelectedOrg] = useState<string>('');
+  const [selectedOrg, setSelectedOrg] = useState('');
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string>('');
-  const [connectedPhone, setConnectedPhone] = useState<string>('');
+  const [metaReady, setMetaReady] = useState(false);
+  const [message, setMessage] = useState('');
+  const [connectedPhone, setConnectedPhone] = useState('');
   const metaSessionRef = useRef<MetaSessionInfo>({});
+  const preparedRef = useRef<{ organizationId: string; state: string; fb: FacebookSdk } | null>(null);
 
   const selectedBusiness = useMemo(
     () => memberships.find((item) => item.organization_id === selectedOrg),
@@ -131,9 +123,7 @@ const Onboarding = () => {
   const loadMemberships = async () => {
     if (!coreSupabase) return;
     const { data: memberRows, error: memberError } = await coreSupabase
-      .from('org_members')
-      .select('organization_id, role')
-      .order('created_at', { ascending: true });
+      .from('org_members').select('organization_id, role').order('created_at', { ascending: true });
     if (memberError) throw memberError;
     const rows = memberRows ?? [];
     if (!rows.length) {
@@ -142,10 +132,7 @@ const Onboarding = () => {
       return;
     }
     const ids = rows.map((row) => row.organization_id);
-    const { data: orgRows, error: orgError } = await coreSupabase
-      .from('organizations')
-      .select('id, name')
-      .in('id', ids);
+    const { data: orgRows, error: orgError } = await coreSupabase.from('organizations').select('id, name').in('id', ids);
     if (orgError) throw orgError;
     const names = new Map((orgRows ?? []).map((row) => [row.id, row.name]));
     const next = rows.map((row) => ({
@@ -214,7 +201,7 @@ const Onboarding = () => {
     if (createdId) setSelectedOrg(createdId);
     setBusinessName('');
     setBusy(false);
-    setMessage('Negocio creado. Ya podés conectar su WhatsApp.');
+    setMessage('Negocio creado. Preparando conexión con Meta…');
   };
 
   const callSignup = async (body: Record<string, unknown>) => {
@@ -236,21 +223,81 @@ const Onboarding = () => {
     return payload;
   };
 
-  const connectWhatsApp = async () => {
+  useEffect(() => {
+    let cancelled = false;
+    preparedRef.current = null;
+    setMetaReady(false);
+
+    if (!userEmail || !selectedOrg || !selectedBusiness || selectedBusiness.role === 'operator') return;
+
+    void Promise.all([
+      callSignup({ action: 'create_state', organization_id: selectedOrg }),
+      loadFacebookSdk(),
+    ]).then(([stateResult, fb]) => {
+      if (cancelled) return;
+      const state = String(stateResult.state || '');
+      if (!state) throw new Error('missing_signup_state');
+      preparedRef.current = { organizationId: selectedOrg, state, fb };
+      setMetaReady(true);
+      setMessage((current) => current.startsWith('Negocio creado') ? 'Listo. Ya podés conectar WhatsApp.' : '');
+    }).catch((error) => {
+      if (cancelled) return;
+      const detail = error instanceof Error ? error.message : 'unknown_error';
+      setMessage(`No pudimos preparar Meta. Diagnóstico: ${detail}`);
+    });
+
+    return () => { cancelled = true; };
+  }, [userEmail, selectedOrg, selectedBusiness?.role]);
+
+  const prepareNextMetaAttempt = () => {
+    preparedRef.current = null;
+    setMetaReady(false);
+    void Promise.all([
+      callSignup({ action: 'create_state', organization_id: selectedOrg }),
+      loadFacebookSdk(),
+    ]).then(([stateResult, fb]) => {
+      const state = String(stateResult.state || '');
+      if (!state) throw new Error('missing_signup_state');
+      preparedRef.current = { organizationId: selectedOrg, state, fb };
+      setMetaReady(true);
+    }).catch((error) => {
+      const detail = error instanceof Error ? error.message : 'unknown_error';
+      setMessage(`No pudimos preparar otro intento. Diagnóstico: ${detail}`);
+    });
+  };
+
+  const connectWhatsApp = () => {
     if (!selectedOrg || !selectedBusiness || selectedBusiness.role === 'operator') return;
+    const prepared = preparedRef.current;
+    if (!prepared || prepared.organizationId !== selectedOrg || !metaReady) {
+      setMessage('Meta todavía se está preparando. Intentá de nuevo en un momento.');
+      return;
+    }
+
     setBusy(true);
     setMessage('Abriendo conexión segura con Meta…');
     setConnectedPhone('');
     metaSessionRef.current = {};
+    preparedRef.current = null;
+    setMetaReady(false);
+
+    let callbackReceived = false;
+    const callbackTimeout = window.setTimeout(() => {
+      if (callbackReceived) return;
+      setBusy(false);
+      setMessage('Meta no abrió la ventana de conexión. Revisá si Chrome bloqueó el popup y volvé a intentar.');
+      prepareNextMetaAttempt();
+    }, 8000);
+
     try {
-      const stateResult = await callSignup({ action: 'create_state', organization_id: selectedOrg });
-      const state = String(stateResult.state || '');
-      const fb = await loadFacebookSdk();
-      fb.login(async (response) => {
+      prepared.fb.login(async (response) => {
+        callbackReceived = true;
+        window.clearTimeout(callbackTimeout);
         const code = response.authResponse?.code;
         if (!code) {
           setBusy(false);
           setMessage('La conexión con Meta fue cancelada o no se completó.');
+          prepareNextMetaAttempt();
           return;
         }
         try {
@@ -258,16 +305,18 @@ const Onboarding = () => {
             action: 'exchange',
             organization_id: selectedOrg,
             code,
-            state,
+            state: prepared.state,
             waba_id: metaSessionRef.current.wabaId,
             phone_number_id: metaSessionRef.current.phoneNumberId,
           });
           setConnectedPhone(String(result.display_phone_number || result.phone_number_id || 'WhatsApp conectado'));
           setMessage('WhatsApp quedó conectado correctamente a este negocio.');
-        } catch {
-          setMessage('Meta autorizó la conexión, pero Creatyv no pudo terminar el registro. No se modificó ningún otro negocio.');
+        } catch (error) {
+          const detail = error instanceof Error ? error.message : 'unknown_error';
+          setMessage(`Meta autorizó la conexión, pero Creatyv no pudo terminar el registro. Diagnóstico: ${detail}`);
         } finally {
           setBusy(false);
+          prepareNextMetaAttempt();
         }
       }, {
         config_id: META_CONFIG_ID,
@@ -276,9 +325,12 @@ const Onboarding = () => {
         extras: { sessionInfoVersion: '3', version: 'v4' },
       });
     } catch (error) {
+      callbackReceived = true;
+      window.clearTimeout(callbackTimeout);
       setBusy(false);
       const detail = error instanceof Error ? error.message : 'unknown_error';
-      setMessage(`No pudimos iniciar la conexión con Meta. Diagnóstico: ${detail}`);
+      setMessage(`No pudimos abrir Meta. Diagnóstico: ${detail}`);
+      prepareNextMetaAttempt();
     }
   };
 
@@ -369,8 +421,8 @@ const Onboarding = () => {
                         <div className="mt-6 rounded-2xl border border-black/7 bg-[#f7f5f0] p-4">
                           <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm"><MessageCircle size={18} className="text-[#168a52]" /></div><div><div className="text-[13px] font-medium">WhatsApp Business</div><div className="mt-1 text-[11px] text-black/45">Embedded Signup v4 · Meta</div></div></div>
                         </div>
-                        <button type="button" onClick={connectWhatsApp} disabled={busy || !selectedBusiness || selectedBusiness.role === 'operator'} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0b777b] px-5 py-4 text-[14px] font-semibold text-white shadow-lg shadow-[#0b777b]/15 disabled:cursor-not-allowed disabled:opacity-55">
-                          {busy ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />} Conectar WhatsApp
+                        <button type="button" onClick={connectWhatsApp} disabled={busy || !metaReady || !selectedBusiness || selectedBusiness.role === 'operator'} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0b777b] px-5 py-4 text-[14px] font-semibold text-white shadow-lg shadow-[#0b777b]/15 disabled:cursor-not-allowed disabled:opacity-55">
+                          {busy || !metaReady ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />} {metaReady ? 'Conectar WhatsApp' : 'Preparando Meta…'}
                         </button>
                         {selectedBusiness?.role === 'operator' ? <p className="mt-3 text-center text-[11px] text-black/45">Solo owner o admin puede conectar canales.</p> : null}
                         {connectedPhone ? <div className="mt-4 rounded-2xl bg-[#e9f8ef] px-4 py-3 text-center text-[12px] font-medium text-[#177047]">✓ {connectedPhone}</div> : null}
