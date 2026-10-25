@@ -26,6 +26,9 @@ declare global {
   }
 }
 
+let facebookSdkPromise: Promise<FacebookSdk> | null = null;
+let facebookSdkInitialized = false;
+
 function parseMetaSessionInfo(event: MessageEvent): MetaSessionInfo | null {
   if (!['https://www.facebook.com', 'https://web.facebook.com'].includes(event.origin)) return null;
   let data = event.data;
@@ -40,50 +43,38 @@ function parseMetaSessionInfo(event: MessageEvent): MetaSessionInfo | null {
 }
 
 function initializeFacebookSdk(fb: FacebookSdk) {
-  fb.init({ appId: META_APP_ID, cookie: true, xfbml: false, version: 'v26.0' });
+  if (!facebookSdkInitialized) {
+    fb.init({ appId: META_APP_ID, cookie: true, xfbml: false, version: 'v26.0' });
+    facebookSdkInitialized = true;
+  }
   return fb;
 }
 
 function loadFacebookSdk() {
-  if (window.FB) return Promise.resolve(initializeFacebookSdk(window.FB));
-  return new Promise<FacebookSdk>((resolve, reject) => {
-    let settled = false;
+  if (facebookSdkPromise) return facebookSdkPromise;
+
+  facebookSdkPromise = new Promise<FacebookSdk>((resolve, reject) => {
     const finish = () => {
-      if (settled) return;
       if (!window.FB) {
-        settled = true;
         reject(new Error('facebook_sdk_unavailable'));
         return;
       }
       try {
-        const fb = initializeFacebookSdk(window.FB);
-        settled = true;
-        resolve(fb);
+        resolve(initializeFacebookSdk(window.FB));
       } catch (error) {
-        settled = true;
         reject(error instanceof Error ? error : new Error('facebook_sdk_init_failed'));
       }
     };
 
-    window.fbAsyncInit = finish;
-    const existing = document.getElementById('facebook-jssdk');
-    if (existing) {
-      let attempts = 0;
-      const timer = window.setInterval(() => {
-        attempts += 1;
-        if (window.FB) {
-          window.clearInterval(timer);
-          finish();
-        } else if (attempts >= 50) {
-          window.clearInterval(timer);
-          if (!settled) {
-            settled = true;
-            reject(new Error('facebook_sdk_timeout'));
-          }
-        }
-      }, 100);
+    if (window.FB) {
+      finish();
       return;
     }
+
+    window.fbAsyncInit = finish;
+
+    const existing = document.getElementById('facebook-jssdk');
+    if (existing) return;
 
     const script = document.createElement('script');
     script.id = 'facebook-jssdk';
@@ -91,15 +82,11 @@ function loadFacebookSdk() {
     script.defer = true;
     script.crossOrigin = 'anonymous';
     script.src = 'https://connect.facebook.net/en_US/sdk.js';
-    script.onload = () => { if (window.FB) finish(); };
-    script.onerror = () => {
-      if (!settled) {
-        settled = true;
-        reject(new Error('facebook_sdk_load_failed'));
-      }
-    };
+    script.onerror = () => reject(new Error('facebook_sdk_load_failed'));
     document.body.appendChild(script);
   });
+
+  return facebookSdkPromise;
 }
 
 const Onboarding = () => {
@@ -223,13 +210,25 @@ const Onboarding = () => {
     return payload;
   };
 
+  const prepareMeta = async (organizationId: string) => {
+    setMetaReady(false);
+    preparedRef.current = null;
+    const [stateResult, fb] = await Promise.all([
+      callSignup({ action: 'create_state', organization_id: organizationId }),
+      loadFacebookSdk(),
+    ]);
+    const state = String(stateResult.state || '');
+    if (!state) throw new Error('missing_signup_state');
+    preparedRef.current = { organizationId, state, fb };
+    setMetaReady(true);
+  };
+
   useEffect(() => {
     let cancelled = false;
-    preparedRef.current = null;
-    setMetaReady(false);
-
     if (!userEmail || !selectedOrg || !selectedBusiness || selectedBusiness.role === 'operator') return;
 
+    setMetaReady(false);
+    preparedRef.current = null;
     void Promise.all([
       callSignup({ action: 'create_state', organization_id: selectedOrg }),
       loadFacebookSdk(),
@@ -250,17 +249,7 @@ const Onboarding = () => {
   }, [userEmail, selectedOrg, selectedBusiness?.role]);
 
   const prepareNextMetaAttempt = () => {
-    preparedRef.current = null;
-    setMetaReady(false);
-    void Promise.all([
-      callSignup({ action: 'create_state', organization_id: selectedOrg }),
-      loadFacebookSdk(),
-    ]).then(([stateResult, fb]) => {
-      const state = String(stateResult.state || '');
-      if (!state) throw new Error('missing_signup_state');
-      preparedRef.current = { organizationId: selectedOrg, state, fb };
-      setMetaReady(true);
-    }).catch((error) => {
+    void prepareMeta(selectedOrg).catch((error) => {
       const detail = error instanceof Error ? error.message : 'unknown_error';
       setMessage(`No pudimos preparar otro intento. Diagnóstico: ${detail}`);
     });
@@ -275,24 +264,12 @@ const Onboarding = () => {
     }
 
     setBusy(true);
-    setMessage('Abriendo conexión segura con Meta…');
+    setMessage('Completá la conexión en la ventana de Meta.');
     setConnectedPhone('');
     metaSessionRef.current = {};
-    preparedRef.current = null;
-    setMetaReady(false);
-
-    let callbackReceived = false;
-    const callbackTimeout = window.setTimeout(() => {
-      if (callbackReceived) return;
-      setBusy(false);
-      setMessage('Meta no abrió la ventana de conexión. Revisá si Chrome bloqueó el popup y volvé a intentar.');
-      prepareNextMetaAttempt();
-    }, 8000);
 
     try {
       prepared.fb.login(async (response) => {
-        callbackReceived = true;
-        window.clearTimeout(callbackTimeout);
         const code = response.authResponse?.code;
         if (!code) {
           setBusy(false);
@@ -300,6 +277,10 @@ const Onboarding = () => {
           prepareNextMetaAttempt();
           return;
         }
+
+        preparedRef.current = null;
+        setMetaReady(false);
+
         try {
           const result = await callSignup({
             action: 'exchange',
@@ -322,15 +303,12 @@ const Onboarding = () => {
         config_id: META_CONFIG_ID,
         response_type: 'code',
         override_default_response_type: true,
-        extras: { sessionInfoVersion: '3', version: 'v4' },
+        extras: { version: 'v4' },
       });
     } catch (error) {
-      callbackReceived = true;
-      window.clearTimeout(callbackTimeout);
       setBusy(false);
       const detail = error instanceof Error ? error.message : 'unknown_error';
       setMessage(`No pudimos abrir Meta. Diagnóstico: ${detail}`);
-      prepareNextMetaAttempt();
     }
   };
 
@@ -422,7 +400,7 @@ const Onboarding = () => {
                           <div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white shadow-sm"><MessageCircle size={18} className="text-[#168a52]" /></div><div><div className="text-[13px] font-medium">WhatsApp Business</div><div className="mt-1 text-[11px] text-black/45">Embedded Signup v4 · Meta</div></div></div>
                         </div>
                         <button type="button" onClick={connectWhatsApp} disabled={busy || !metaReady || !selectedBusiness || selectedBusiness.role === 'operator'} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0b777b] px-5 py-4 text-[14px] font-semibold text-white shadow-lg shadow-[#0b777b]/15 disabled:cursor-not-allowed disabled:opacity-55">
-                          {busy || !metaReady ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />} {metaReady ? 'Conectar WhatsApp' : 'Preparando Meta…'}
+                          {busy || !metaReady ? <Loader2 size={17} className="animate-spin" /> : <ArrowRight size={17} />} {busy ? 'Esperando a Meta…' : metaReady ? 'Conectar WhatsApp' : 'Preparando Meta…'}
                         </button>
                         {selectedBusiness?.role === 'operator' ? <p className="mt-3 text-center text-[11px] text-black/45">Solo owner o admin puede conectar canales.</p> : null}
                         {connectedPhone ? <div className="mt-4 rounded-2xl bg-[#e9f8ef] px-4 py-3 text-center text-[12px] font-medium text-[#177047]">✓ {connectedPhone}</div> : null}
