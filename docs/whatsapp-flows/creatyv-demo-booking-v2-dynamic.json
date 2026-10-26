@@ -204,7 +204,8 @@
         "appointment_date": { "type": "string", "__example__": "2026-10-26" },
         "appointment_time": { "type": "string", "__example__": "15:00" },
         "appointment_time_label": { "type": "string", "__example__": "3:00 p. m." },
-        "location_name": { "type": "string", "__example__": "Sucursal principal" }
+        "location_name": { "type": "string", "__example__": "Sucursal principal" },
+        "summary_text": { "type": "string", "__example__": "Consulta dental · 2026-10-26 · 3:00 p. m. · Sucursal principal" }
       },
       "layout": {
         "type": "SingleColumnLayout",
@@ -215,7 +216,7 @@
           },
           {
             "type": "TextBody",
-            "text": "${data.service_name} · ${data.appointment_date} · ${data.appointment_time_label} · ${data.location_name}"
+            "text": "${data.summary_text}"
           },
           {
             "type": "Footer",
