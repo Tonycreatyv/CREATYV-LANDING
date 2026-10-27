@@ -5,6 +5,7 @@ import BarberLanding from './barber/BarberLanding';
 import Trial from './pages/Trial';
 import Legal from './pages/Legal';
 import Onboarding from './pages/Onboarding';
+import ProductWorkspacePreview from './pages/ProductWorkspacePreview';
 import Footer from './components/Footer';
 import { useLanguage } from './context/LanguageContext';
 import { NavigationProvider } from './context/NavigationContext';
@@ -17,6 +18,7 @@ const routes: Record<string, ComponentType> = {
   '/trial': Trial,
   '/legal': Legal,
   '/onboarding': Onboarding,
+  '/product-preview': ProductWorkspacePreview,
   '/privacy': Legal,
   '/terms': Legal,
   '/data-deletion': Legal,
@@ -30,7 +32,8 @@ const App = () => {
   const isDentalPage = path === '/dental';
   const isBarberPage = path === '/barber';
   const isOnboardingPage = path === '/onboarding';
-  const showSalesWidget = path !== '/barber' && path !== '/' && path !== '/onboarding';
+  const isProductPreviewPage = path === '/product-preview';
+  const showSalesWidget = path !== '/barber' && path !== '/' && path !== '/onboarding' && path !== '/product-preview';
 
   const navI18n = {
     es: {
@@ -128,7 +131,7 @@ const App = () => {
 
   return (
     <NavigationProvider value={{ goTo, scrollToSection }}>
-      {isHomePage || isBarberPage || isOnboardingPage ? (
+      {isHomePage || isBarberPage || isOnboardingPage || isProductPreviewPage ? (
         <CurrentPage />
       ) : (
         <div className="min-h-screen bg-[#0f0f0f] text-white">
