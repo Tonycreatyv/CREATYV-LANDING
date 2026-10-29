@@ -4,6 +4,11 @@
   publish = "build"
 
 [[redirects]]
+  from = "/data-deletion"
+  to = "/privacy/#eliminacion"
+  status = 301
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
