@@ -26,5 +26,11 @@ function arm(){clearTimeout(timer);if(!reduced&&!document.hidden)timer=setTimeou
 async function update(){clearTimeout(timer);if(document.hidden)return;const ticket=++generation;let type;try{type=source?await source():null}catch{type=null}if(ticket!==generation)return;type=typeof type==='object'&&type?type.type:type;if(!Object.hasOwn(messages,type)){const sequence=['exploring','watching','profile_started','proposal_started'];type=pending.shift()||sequence[n++%sequence.length]}if(type===current){arm();return}if(reduced){render(type);return}try{animation=text.animate([{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-12px)'}],{duration:350,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});await animation.finished;if(ticket!==generation)return;render(type);animation.cancel();animation=text.animate([{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:350,easing:'cubic-bezier(.16,1,.3,1)'});await animation.finished}catch{}if(ticket===generation)arm()}
 document.addEventListener('visibilitychange',()=>{generation++;clearTimeout(timer);animation?.cancel();if(!document.hidden)arm()});
 window.CREATYVActivity={setSource(adapter){source=typeof adapter==='function'?adapter:null;generation++;animation?.cancel();update()}};
+const footerLinks=$('.footerlinks');
+if(footerLinks){
+ const privacy=document.createElement('a');privacy.href='/privacy/';privacy.textContent='Privacidad';
+ const terms=document.createElement('a');terms.href='/terms/';terms.textContent='Términos';
+ footerLinks.append(privacy,terms);
+}
 const nav=$('.nav');function alignNav(){nav.style.setProperty('--ticker-offset',Math.max(0,bar.offsetHeight-scrollY)+'px')}addEventListener('scroll',alignNav,{passive:true});addEventListener('resize',alignNav);alignNav();render('exploring');arm();document.documentElement.dataset.creatyvRefined='true';
 })();
